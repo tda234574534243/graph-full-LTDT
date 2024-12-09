@@ -1,0 +1,139 @@
+
+body{
+    background-image: url("./images/pexels-8moments-1323550.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    object-fit: cover;
+}
+
+svg {
+    width: 100%;
+    max-width: 1200px;
+    border: 4px solid #130707;
+    background-color: rgb(142, 142, 180);
+}
+
+.node {
+    stroke: #e1f2a0;
+    stroke-width: 1.5px;
+}
+
+.link {
+    fill: none;
+    stroke-opacity: 0.6;
+}
+
+text {
+    fill: rgb(233, 237, 32);
+    /* Đặt màu chữ là vàng cho tất cả các text */
+}
+
+.box-right .findPath {
+    position: relative;
+    border: none;
+    width: 100px;
+    height: 50px;
+    background-color: aliceblue;
+    color: #130707;
+    font-weight: bold;
+    border-radius: 10%;
+    box-shadow: 0 0 0 0 rgba(0, 255, 255, 0.4);
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out;
+}
+
+.box-right .findPath:hover {
+    box-shadow: 0 0 15px 10px rgba(240, 39, 39, 0.6);
+    background-color: rgb(255, 214, 31);
+    color: rgb(205, 26, 71);
+    /* Hiệu ứng đường sáng chạy quanh border */
+    transform: translateY(-10px);
+    /* Nổi lên khi hover */
+}
+
+.box-right .findPath .light {
+    position: absolute;
+    background: aqua;
+    border-radius: 2px;
+}
+
+.box-right .findPath .top,
+.box-right .findPath .bottom {
+    height: 3px;
+    width: 100%;
+}
+
+.box-right .findPath .left,
+.box-right .findPath .right {
+    width: 3px;
+    height: 100%;
+}
+
+.box-right .findPath .top {
+    top: 0;
+    left: -100%;
+    /* Bắt đầu ở ngoài cùng bên trái */
+    animation: moveRight 2s linear infinite;
+}
+
+.box-right .findPath .right {
+    top: -100%;
+    right: 0;
+    animation: moveDown 2s linear infinite;
+}
+
+.box-right .findPath .bottom {
+    bottom: 0;
+    right: -100%;
+    /* Bắt đầu ở ngoài cùng bên phải */
+    animation: moveLeft 2s linear infinite;
+}
+
+.box-right .findPath .left {
+    bottom: -100%;
+    left: 0;
+    animation: moveUp 2s linear infinite;
+}
+
+
+/* Keyframes cho chuyển động */
+@keyframes moveRight {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes moveDown {
+    0% {
+        top: -100%;
+    }
+
+    100% {
+        top: 100%;
+    }
+}
+
+@keyframes moveLeft {
+    0% {
+        right: -100%;
+    }
+
+    100% {
+        right: 100%;
+    }
+}
+
+@keyframes moveUp {
+    0% {
+        bottom: -100%;
+    }
+
+    100% {
+        bottom: 100%;
+    }
+}
+
