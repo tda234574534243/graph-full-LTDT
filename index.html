@@ -84,8 +84,7 @@
                     });
                 </script>
                 <div class="col-md h-25 input-group">
-                    <input type="text" id="result" class="form-control"
-                        aria-label="Dollar amount (with dot and two decimal places)">
+                    <input type="text" id="result" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" readonly>
                     <span class="input-group-text">ki-lô-mét</span>
                 </div>
             </div>
@@ -152,7 +151,7 @@
             simulation.nodes(graph.nodes).on("tick", ticked);
 
             // Cập nhật vị trí các cạnh dựa trên vị trí của các nút
-            
+
             node.attr("transform", d => `translate(${d.x}, ${d.y})`);
             function ticked() {
                 // Cập nhật vị trí các cạnh
