@@ -152,7 +152,7 @@
             simulation.nodes(graph.nodes).on("tick", ticked);
 
             // Cập nhật vị trí các cạnh dựa trên vị trí của các nút
-
+            
             node.attr("transform", d => `translate(${d.x}, ${d.y})`);
             function ticked() {
                 // Cập nhật vị trí các cạnh
