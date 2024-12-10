@@ -43,9 +43,9 @@
             <div class="col-md w-60 m-auto">
                 <b>Tốc độ chạy thuật toán (bao gồm chạy cả nước đi chưa đúng, cả quá trình chạy thuật toán, làm cho thuật toán trực quan hơn)</b>
                 <select id="speedControl" class="form-select form-select-lg mb-3" aria-label="Speed control">
-                    <option value="None">Chỉ cần hiện kết quả</option>
-                    <option value="2x">2x</option>
-                    <option value="4x">4x</option>
+                    <option value="None">None</option>
+                    <option value="2x">Chậm</option>
+                    <option value="4x">Nhanh hơn</option>
                 </select>
             </div>
             <div class="col g-2 mb-5">
@@ -69,6 +69,20 @@
                         <span class="light left"></span>
                         Tìm đường</button>
                 </div>
+                <div class="col-md">
+                    <button type="button" class="findPath" id="reloadButton">
+                        <span class="light top"></span>
+                        <span class="light right"></span>
+                        <span class="light bottom"></span>
+                        <span class="light left"></span>
+                        Tải lại
+                    </button>
+                </div>
+                <script>
+                    document.getElementById('reloadButton').addEventListener('click', function() {
+                        location.reload(); // Tải lại trang
+                    });
+                </script>
                 <div class="col-md h-25 input-group">
                     <input type="text" id="result" class="form-control"
                         aria-label="Dollar amount (with dot and two decimal places)">
@@ -235,7 +249,9 @@
                     });
 
                     // Tăng trực quan hóa với thời gian chờ
-                    await sleep(100);
+                    if(delayFactor !== 0){
+                        await sleep(100);
+                    }
                 }
 
                 // Sau khi thuật toán kết thúc, xóa màu cam của các cạnh
@@ -314,7 +330,9 @@
                             svg.select(`#${source.id.replace(/\s+/g, '_')}`).attr("fill", "orange");
                             svg.select(`#${target.id.replace(/\s+/g, '_')}`).attr("fill", "orange");
                             svg.select(`#link-${edge.link}`).attr("stroke", "orange");
-                            await sleep(100); // Thời gian để trực quan hóa
+                            if(delayFactor !== 0){
+                                await sleep(100);
+                            } // Thời gian để trực quan hóa
 
                             if (distances[source.id] + distance < distances[target.id]) {
                                 distances[target.id] = distances[source.id] + distance;
@@ -410,7 +428,9 @@
 
                             // Tô màu cạnh đang xét
                             svg.select(`#link-${edge.link}`).attr("stroke", "orange");
-                            await sleep(100); // Thời gian để trực quan hóa
+                            if(delayFactor !== 0){
+                                await sleep(100);
+                            } // Thời gian để trực quan hóa
 
                             if (newDistance < distances[neighborId]) {
                                 distances[neighborId] = newDistance;
@@ -458,7 +478,7 @@
                 }
 
                 // Biến toàn cục để lưu trữ hệ số thời gian
-                let delayFactor = 1;
+                let delayFactor = 0;
 
                 // Lắng nghe sự kiện thay đổi trên speedControl
                 document.getElementById("speedControl").addEventListener("change", function() {
@@ -470,13 +490,14 @@
                 function adjustAlgorithmSpeed(speed) {
                     switch (speed) {
                         case "2x":
-                            delayFactor = 5; // Giảm thời gian nghỉ còn một nửa
+                            delayFactor = 4; // Giảm thời gian nghỉ còn một nửa
                             break;
                         case "4x":
-                            delayFactor = 2; // Giảm thời gian nghỉ còn một phần tư
+                            delayFactor = 1; // Giảm thời gian nghỉ còn một phần tư
                             break;
                         case "None":
-                            delayFactor = 1;  // Giá trị mặc định (chạy bình thường)
+                            delayFactor = 0;  // Giá trị mặc định (chạy bình thường)
+                            break;
                         default:
                             delayFactor = 1; // Giá trị mặc định (chạy bình thường)
                     }
@@ -484,9 +505,6 @@
 
                 // Hàm sleep được điều chỉnh theo delayFactor
                 function sleep(ms) {
-                    if(delayFactor === 0){
-                        return Promise.resolve();
-                    }
                     return new Promise(resolve => setTimeout(resolve, ms * delayFactor));
                 }
             function FindPath() {
