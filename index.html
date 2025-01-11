@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <meta charset="UTF-8">
+    <title>Đồ thị từ JSON</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    
+</head>
+
+<body>
+    <div class="container-fluid d-lg-flex">
+        <div class="box-left p-lg-3">
+            <h1 style="color: white;">Ứng dụng thuật toán để tìm đường đi ngắn nhất các địa điểm nổi bật tại Việt Nam</h1>
+            <svg width="1200" height="700" style="align-items: center;"></svg>
+            <div class="position-relative top-20 start-50 translate-middle input-group">
+                <input type="text" id="locate" class="form-control" readonly style="font-size: 20px; font-weight: bold;">
+            </div>
+        </div>
+        <div class="box-right m-auto">
+            <div class="col-md w-60 m-auto">
+                <b>Lựa chọn thuật toán:</b>
+                <select id="ShortAlgorithm" class="form-select form-select-lg mb-3" aria-label="Large select example">
+                    <option value="Dijkstra">Dijkstra</option>
+                    <option value="Ford Bell Man">Bellman-Ford</option>
+                    <option value="AStar">A*</option>
+                </select>
+            </div>
+            <div class="col-md w-60 m-auto">
+                <b>Phương tiện di chuyển:</b>
+                <select id="vehicle" class="form-select form-select-lg mb-3" aria-label="Large select example">
+                    <option value="Xe máy">Xe máy</option>
+                    <option value="Xe ô tô">Xe ô tô</option>
+                </select>
+            </div>
+            <div class="col-md w-60 m-auto">
+                <b>Tốc độ chạy thuật toán (bao gồm chạy cả nước đi chưa đúng, cả quá trình chạy thuật toán, làm cho thuật toán trực quan hơn)</b>
+                <select id="speedControl" class="form-select form-select-lg mb-3" aria-label="Speed control">
+                    <option value="None">None</option>
+                    <option value="2x">Chậm</option>
+                    <option value="4x">Nhanh hơn</option>
+                </select>
+            </div>
+            <div class="col g-2 mb-5">
+                <b style="color: red;">Địa điểm bắt đầu:</b>
+                <div class="col-md">
+                    <select id="vertexStart" class="form-select form-select-lg mb-3" aria-label="Large select example">
+                    </select>
+                </div>
+                <b style="color: blue;">Địa điểm kết thúc:</b>
+                <div class="col-md">
+                    <select id="vertexEnd" class="form-select form-select-lg mb-3" aria-label="Large select example">
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md">
+                    <button type="button" class="findPath">
+                        <span class="light top"></span>
+                        <span class="light right"></span>
+                        <span class="light bottom"></span>
+                        <span class="light left"></span>
+                        Tìm đường</button>
+                </div>
+                <div class="col-md">
+                    <button type="button" class="findPath" id="reloadButton">
+                        <span class="light top"></span>
+                        <span class="light right"></span>
+                        <span class="light bottom"></span>
+                        <span class="light left"></span>
+                        Tải lại
+                    </button>
+                </div>
+                <script>
+                    document.getElementById('reloadButton').addEventListener('click', function() {
+                        location.reload(); // Tải lại trang
+                    });
+                </script>
+                <div class="col-md h-25 input-group">
+                    <input type="text" id="result" class="form-control" aria-label="Dollar amount (with dot and two decimal places)" readonly>
+                    <span class="input-group-text">ki-lô-mét</span>
+                </div>
+            </div>
+            
+            <div class="row feedback mt-5 d-flex justify-content-center" style="padding-bottom: 100px;">
+                <a href="feedback.html" class="btn btn-primary w-50">Góp ý &amp phản hồi</a>
+            </div>
+            
+        </div>
+        
+    </div>
+    <script>
+        d3.json("graph.json").then(graph => {
+            const svg = d3.select("svg");
+            const width = +svg.attr("width");
+            const height = +svg.attr("height");
+
+            // Khởi tạo mô phỏng
+            const simulation = d3.forceSimulation(graph.nodes)
+                .force("link", d3.forceLink().id(d => d.id).distance(d => d.distance * 25)) // Liên kết
+                .force("charge", d3.forceManyBody().strength(-500)) // Lực tác động
+                .force("center", d3.forceCenter(width / 2.2, height / 2));
+
+            // Vẽ các cạnh
+            const link = svg.append("g")
+                .attr("class", "links")
+                .selectAll("line")
+                .data(graph.edges)
+                .enter().append("line")
+                .attr("class", "link")
+                .attr("id", d => `link-${d.link}`)
+                .attr("stroke", "black")
+
+            // Vẽ các nút
+            const node = svg.append("g")
+                .attr("class", "nodes")
+                .selectAll("g")  // Sử dụng nhóm cho mỗi nút
+                .data(graph.nodes)
+                .enter().append("g")  // Tạo nhóm cho mỗi nút
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x}, ${d.y})`) // Gán vị trí từ x, y
+                .call(d3.drag() // Tạo khả năng kéo cho các nút
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            // Thêm hình tròn vào nhóm
+            node.append("circle")
+                .attr("r", 9)
+                .attr("class", "node")
+                .attr("fill", "#69b3a2")
+                .attr("id", d => d.id.replace(/\s+/g, '_'));  // Thay thế khoảng trắng bằng dấu gạch dưới
+
+
+            // Thêm văn bản vào nhóm
+            node.append("text")
+                .attr("dy", -10)  // Đặt vị trí văn bản phía trên nút
+                .attr("text-anchor", "middle")  // Căn giữa văn bản
+                .style("font-size", "12px")  // Thiết lập kích thước văn bản
+                .text(d => d.id);  // Hiển thị id từ dữ liệu JSON
+
+            // Gán links cho simulation
+            simulation.force("link").links(graph.edges);
+            simulation.nodes(graph.nodes).on("tick", ticked);
+
+            // Cập nhật vị trí các cạnh dựa trên vị trí của các nút
+
+            node.attr("transform", d => `translate(${d.x}, ${d.y})`);
+            function ticked() {
+                // Cập nhật vị trí các cạnh
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                // Cập nhật vị trí các nút
+                node
+                    .attr("transform", d => `translate(${d.x}, ${d.y})`);  // Sử dụng transform để định vị các nhóm
+            }
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+
+            const vertexStart = document.getElementById("vertexStart");
+            const vertexEnd = document.getElementById("vertexEnd");
+
+            // Thêm các nút vào select cho vertexStart
+            graph.nodes.forEach(node => {
+                const option = document.createElement("option");
+                option.value = node.id;  // Gán giá trị của option là id của nút
+                option.textContent = node.id;  // Hiển thị tên nút
+                vertexStart.appendChild(option);  // Thêm option vào select
+            });
+
+            // Thêm các nút vào select cho vertexEnd
+            graph.nodes.forEach(node => {
+                const option = document.createElement("option");
+                option.value = node.id;  // Gán giá trị của option là id của nút
+                option.textContent = node.id;  // Hiển thị tên nút
+                vertexEnd.appendChild(option);  // Thêm option vào select
+            });
+            const findPathButton = document.querySelector('.findPath');
+            findPathButton.addEventListener('click', FindPath);
+
+            //Hàm thuật toán Dijkstra
+            async function Dijkstra(graph, startID, endID, vehicle) {
+                const distances = {};
+                const parent = {};
+                const queue = new PriorityQueue();
+
+                graph.nodes.forEach(node => {
+                    distances[node.id] = Infinity;
+                    parent[node.id] = null;
+                });
+
+                distances[startID] = 0;
+                queue.enqueue(startID, 0);
+
+                while (!queue.isEmpty()) {
+                    const { element: currentNodeId } = queue.dequeue();
+
+                    // Tô màu cam cho các nút đã được xử lý
+                    svg.select(`#${currentNodeId.replace(/\s+/g, '_')}`).attr("fill", "orange");
+
+                    // Tô màu cam cho các cạnh đang xử lý
+                    graph.edges.forEach(edge => {
+                        if (edge.source.id === currentNodeId || edge.target.id === currentNodeId) {
+                            svg.select(`#link-${edge.link}`).attr("stroke", "orange");
+                        }
+                    });
+
+                    if (currentNodeId === endID) break;
+
+                    const neighbors = graph.edges.filter(edge =>
+                        (edge.source.id === currentNodeId || edge.target.id === currentNodeId) && edge.vehicles.includes(vehicle));
+
+                    neighbors.forEach(edge => {
+                        const neighborId = edge.source.id === currentNodeId ? edge.target.id : edge.source.id;
+                        const newDistance = distances[currentNodeId] + edge.distance;
+
+                        if (newDistance < distances[neighborId]) {
+                            distances[neighborId] = newDistance;
+                            parent[neighborId] = currentNodeId;
+                            queue.enqueue(neighborId, newDistance);
+                        }
+                    });
+
+                    // Tăng trực quan hóa với thời gian chờ
+                    if(delayFactor !== 0){
+                        await sleep(100);
+                    }
+                }
+
+                // Sau khi thuật toán kết thúc, xóa màu cam của các cạnh
+                svg.selectAll("line.link").attr("stroke", "black");
+
+                // Truy vết đường đi ngắn nhất
+                const path = [];
+                const edgesToHighlight = [];
+                let current = endID;
+
+                while (current) {
+                    path.unshift(current);
+                    const prev = parent[current];
+
+                    if (prev) {
+                        const edge = graph.edges.find(edge =>
+                            (edge.source.id === current && edge.target.id === prev) ||
+                            (edge.source.id === prev && edge.target.id === current));
+                        if (edge) {
+                            edgesToHighlight.push(edge.link);  // Lưu các cạnh trong đường đi ngắn nhất
+                        }
+                    }
+                    current = prev;
+                }
+                //tô màu đen reset lại
+                graph.edges.forEach(edge => {
+                    svg.select(`#link-${edge.link}`).attr("stroke", "black");
+                });
+                // Tô màu vàng cho các cạnh trong đường đi ngắn nhất
+                edgesToHighlight.forEach(edgeId => {
+                    svg.select(`#link-${edgeId}`).attr("stroke", "yellow");
+                });
+
+                svg.select(`#${startID.replace(/\s+/g, '_')}`).attr("fill", "red");
+                svg.select(`#${endID.replace(/\s+/g, '_')}`).attr("fill", "blue");
+
+                return { path, edgesToHighlight, distance: distances[endID] };
+            }
+            // class Hàng đợi ưu tiên giúp chọn nút chưa được xử lý có khoảng cách nhỏ nhất. Hàng đợi ưu tiên giúp thực hiện việc này một cách hiệu quả cho Thuật toán Dijkstra và Astar.
+                class PriorityQueue {
+                    constructor() {
+                        this.elements = [];
+                    }
+
+                    enqueue(element, priority) {
+                        this.elements.push({ element, priority });
+                        this.elements.sort((a, b) => a.priority - b.priority); // Sắp xếp theo độ ưu tiên
+                    }
+
+                    dequeue() {
+                        return this.elements.shift(); // Lấy phần tử đầu tiên (có độ ưu tiên cao nhất)
+                    }
+
+                    isEmpty() {
+                        return this.elements.length === 0;
+                    }
+                }
+                async function FordBellman(graph, startID, endID, vehicle) {
+                    const distances = {};
+                    const parent = {};
+
+                    // Khởi tạo khoảng cách ban đầu
+                    graph.nodes.forEach(node => {
+                        distances[node.id] = Infinity;
+                        parent[node.id] = null;
+                    });
+                    distances[startID] = 0;
+                    
+                    for (let i = 0; i < graph.nodes.length - 1; i++) {
+                        let updated = false;
+
+                        for (const edge of graph.edges) {
+                            if (!edge.vehicles.includes(vehicle)) continue;
+
+                            const { source, target, distance } = edge;
+                            svg.select(`#${source.id.replace(/\s+/g, '_')}`).attr("fill", "orange");
+                            svg.select(`#${target.id.replace(/\s+/g, '_')}`).attr("fill", "orange");
+                            svg.select(`#link-${edge.link}`).attr("stroke", "orange");
+                            if(delayFactor !== 0){
+                                await sleep(100);
+                            } // Thời gian để trực quan hóa
+
+                            if (distances[source.id] + distance < distances[target.id]) {
+                                distances[target.id] = distances[source.id] + distance;
+                                parent[target.id] = source.id;
+                                updated = true;
+                            }
+
+                            if (distances[target.id] + distance < distances[source.id]) {
+                                distances[source.id] = distances[target.id] + distance;
+                                parent[source.id] = target.id;
+                                updated = true;
+                            }
+                        }
+                        if (!updated) break; // Không có cập nhật thì thoát
+
+                        // Tô màu lại các cạnh không thuộc đường đi
+                        graph.edges.forEach(edge => {
+                            svg.select(`#link-${edge.link}`).attr("stroke", "black");
+                        });
+                    }
+
+                    // Kiểm tra chu trình âm
+                    for (const edge of graph.edges) {
+                        if (!edge.vehicles.includes(vehicle)) continue;
+                        const { source, target, distance } = edge;
+                        if (distances[source.id] + distance < distances[target.id]) {
+                            alert("Đồ thị có chu trình âm!");
+                            return { path: [], edgesToHighlight: [], distance: Infinity };
+                        }
+                    }
+
+                    // Truy vết đường đi
+                    const path = [];
+                    const edgesToHighlight = [];
+                    let current = endID;
+
+                    while (current) {
+                        path.unshift(current);
+                        const prev = parent[current];
+                        if (prev) {
+                            const edge = graph.edges.find(edge =>
+                                (edge.source.id === current && edge.target.id === prev) ||
+                                (edge.source.id === prev && edge.target.id === current)
+                            );
+                            if (edge) {
+                                edgesToHighlight.push(edge.link);
+                            }
+                        }
+                        current = prev;
+                    }
+                    graph.edges.forEach(edge => {
+                            svg.select(`#link-${edge.link}`).attr("stroke", "black");
+                    });
+                    // Sau khi thuật toán hoàn tất, tô màu vàng cho các cạnh của đường đi
+                    edgesToHighlight.forEach(edgeId => {
+                        svg.select(`#link-${edgeId}`).attr("stroke", "yellow");
+                    });
+                    svg.select(`#${startID.replace(/\s+/g, '_')}`).attr("fill", "red");
+                    svg.select(`#${endID.replace(/\s+/g, '_')}`).attr("fill", "blue");
+                    return { path, edgesToHighlight, distance: distances[endID] };
+                }
+                async function AStar(graph, startID, endID, vehicle) {
+                    const distances = {}; // Khoảng cách từ điểm bắt đầu
+                    const heuristics = {}; // Hàm heuristic
+                    const parent = {};
+                    const queue = new PriorityQueue();
+
+                    // Tính khoảng cách Euclid làm hàm heuristic
+                    graph.nodes.forEach(node => {
+                        const dx = node.x - graph.nodes.find(n => n.id === endID).x;
+                        const dy = node.y - graph.nodes.find(n => n.id === endID).y;
+                        heuristics[node.id] = Math.sqrt(dx * dx + dy * dy); // Khoảng cách Euclid
+                        distances[node.id] = Infinity;
+                        parent[node.id] = null;
+                    });
+
+                    distances[startID] = 0;
+                    queue.enqueue(startID, heuristics[startID]);
+
+                    while (!queue.isEmpty()) {
+                        const { element: currentNodeId } = queue.dequeue();
+
+                        // Tô màu nút hiện tại
+                        svg.select(`#${currentNodeId.replace(/\s+/g, '_')}`).attr("fill", "orange");
+
+                        const neighbors = graph.edges.filter(edge =>
+                            (edge.source.id === currentNodeId || edge.target.id === currentNodeId) && edge.vehicles.includes(vehicle)
+                        );
+
+                        for (const edge of neighbors) {
+                            const neighborId = edge.source.id === currentNodeId ? edge.target.id : edge.source.id;
+                            const newDistance = distances[currentNodeId] + edge.distance;
+
+                            // Tô màu cạnh đang xét
+                            svg.select(`#link-${edge.link}`).attr("stroke", "orange");
+                            if(delayFactor !== 0){
+                                await sleep(100);
+                            } // Thời gian để trực quan hóa
+
+                            if (newDistance < distances[neighborId]) {
+                                distances[neighborId] = newDistance;
+                                parent[neighborId] = currentNodeId;
+                                const priority = newDistance + heuristics[neighborId];
+                                queue.enqueue(neighborId, priority);
+                            }
+                        }
+
+                        // Tô lại màu mặc định cho các cạnh không liên quan
+                        neighbors.forEach(edge => {
+                            svg.select(`#link-${edge.link}`).attr("stroke", "black");
+                        });
+
+                        if (currentNodeId === endID) break;
+                    }
+
+                    // Truy vết đường đi
+                    const path = [];
+                    const edgesToHighlight = [];
+                    let current = endID;
+
+                    while (current) {
+                        path.unshift(current);
+                        const prev = parent[current];
+                        if (prev) {
+                            const edge = graph.edges.find(edge =>
+                                (edge.source.id === current && edge.target.id === prev) ||
+                                (edge.source.id === prev && edge.target.id === current)
+                            );
+                            if (edge) {
+                                edgesToHighlight.push(edge.link);
+                            }
+                        }
+                        current = prev;
+                    }
+
+                    // Sau khi thuật toán hoàn tất, tô màu vàng cho các cạnh của đường đi
+                    edgesToHighlight.forEach(edgeId => {
+                        svg.select(`#link-${edgeId}`).attr("stroke", "yellow");
+                    });
+                    svg.select(`#${startID.replace(/\s+/g, '_')}`).attr("fill", "red");
+                    svg.select(`#${endID.replace(/\s+/g, '_')}`).attr("fill", "blue");
+                    return { path, edgesToHighlight, distance: distances[endID] };
+                }
+
+                // Biến toàn cục để lưu trữ hệ số thời gian
+                let delayFactor = 0;
+
+                // Lắng nghe sự kiện thay đổi trên speedControl
+                document.getElementById("speedControl").addEventListener("change", function() {
+                    const speed = this.value;
+                    adjustAlgorithmSpeed(speed);
+                });
+
+                // Hàm điều chỉnh tốc độ thuật toán
+                function adjustAlgorithmSpeed(speed) {
+                    switch (speed) {
+                        case "2x":
+                            delayFactor = 4; // Giảm thời gian nghỉ còn một nửa
+                            break;
+                        case "4x":
+                            delayFactor = 1; // Giảm thời gian nghỉ còn một phần tư
+                            break;
+                        case "None":
+                            delayFactor = 0;  // Giá trị mặc định (chạy bình thường)
+                            break;
+                        default:
+                            delayFactor = 0; // Giá trị mặc định (chạy bình thường)
+                    }
+                }
+
+                // Hàm sleep được điều chỉnh theo delayFactor
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms * delayFactor));
+                }
+            function FindPath() {
+                const selectedAlgorithm = document.getElementById("ShortAlgorithm").value;
+                const selectVehicle = document.getElementById("vehicle").value;
+                const selectedStart = vertexStart.value;
+                const selectedEnd = vertexEnd.value;
+
+                // Reset màu sắc trước khi chạy thuật toán
+                svg.selectAll(".node").attr("fill", "#69b3a2");
+                // Thêm dòng này để reset lại lần lặp kiếm đường ở đây này
+                svg.selectAll(".link").attr("stroke", "black");
+                // Chọn thuật toán
+                let result;
+                if (selectedAlgorithm === "Dijkstra") {
+                    result = Dijkstra(graph, selectedStart, selectedEnd, selectVehicle);
+                } else if (selectedAlgorithm === "Ford Bell Man") {
+                    result = FordBellman(graph, selectedStart, selectedEnd, selectVehicle);
+                } else if (selectedAlgorithm === "AStar") {
+                    result = AStar(graph, selectedStart, selectedEnd, selectVehicle);
+                }
+
+                result.then(({ path, edgesToHighlight, distance }) => {
+                    if (path.length > 0) {
+                        document.getElementById("locate").value = path.join(" -> ");
+                        document.getElementById("result").value = distance.toFixed(2);
+                    } else {
+                        alert(`Không có đường đi từ ${selectedStart} đến ${selectedEnd} bằng ${selectVehicle}`);
+                    }
+                });
+            }
+
+
+        }).catch(error => {
+            console.error('Lỗi khi tải file JSON:', error);
+        });
+
+
+    </script>
+</body>
+
+</html>
