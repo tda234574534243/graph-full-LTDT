@@ -1,4 +1,4 @@
-﻿# Đề Tài: Ứng Dụng Thuật Toán Tìm Đường Đi Ngắn Nhất Giữa Các Địa Điểm Nổi Bật Ở Thành phố Hồ Chí Minh
+# Đề Tài: Ứng Dụng Thuật Toán Tìm Đường Đi Ngắn Nhất Giữa Các Địa Điểm Nổi Bật Ở Thành phố Hồ Chí Minh
 ---
 
 ### Mô Tả Đề Tài
