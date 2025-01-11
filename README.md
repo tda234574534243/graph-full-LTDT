@@ -25,7 +25,7 @@
 ## 1. Yêu Cầu Hệ Thống
 
 ### Phần mềm cần thiết
-- **Trình duyệt web hiện đại**: Google Chrome, Mozilla Firefox, Microsoft Edge,...
+- **Trình duyệt web**: Google Chrome, Mozilla Firefox, Microsoft Edge,...
 - **Web server** (khuyến nghị nếu cần tải file `graph.json` qua HTTP):
   - [Node.js](https://nodejs.org/) hoặc [Python](https://www.python.org/).
   - Hoặc sử dụng extension **Live Server** trong Visual Studio Code.
