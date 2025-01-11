@@ -123,8 +123,8 @@
 ---
 
 ## 8. Teammate
-- Manwithgame ![https://github.com/tda234574534243]
-- TruongAnhKietK49 ![https://github.com/TruongAnhKietK49]
-- Ynhi49cnttc ![https://github.com/Ynhi49cnttc]
-- ThanhTien ![stillupdating]
+- Manwithgame [https://github.com/tda234574534243]
+- TruongAnhKietK49 [https://github.com/TruongAnhKietK49]
+- Ynhi49cnttc [https://github.com/Ynhi49cnttc]
+- ThanhTien [stillupdating]
 
