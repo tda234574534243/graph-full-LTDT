@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <title>Đồ thị từ JSON</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    
+    <link rel="icon" href="./images/pexels-8moments-1323550.jpg" type="image/jpg">
 </head>
 
 <body>
@@ -506,33 +506,45 @@
                 function sleep(ms) {
                     return new Promise(resolve => setTimeout(resolve, ms * delayFactor));
                 }
-            function FindPath() {
-                const selectedAlgorithm = document.getElementById("ShortAlgorithm").value;
-                const selectVehicle = document.getElementById("vehicle").value;
-                const selectedStart = vertexStart.value;
-                const selectedEnd = vertexEnd.value;
-
-                // Reset màu sắc trước khi chạy thuật toán
-                svg.selectAll(".node").attr("fill", "#69b3a2");
-                // Chọn thuật toán
-                let result;
-                if (selectedAlgorithm === "Dijkstra") {
-                    result = Dijkstra(graph, selectedStart, selectedEnd, selectVehicle);
-                } else if (selectedAlgorithm === "Ford Bell Man") {
-                    result = FordBellman(graph, selectedStart, selectedEnd, selectVehicle);
-                } else if (selectedAlgorithm === "AStar") {
-                    result = AStar(graph, selectedStart, selectedEnd, selectVehicle);
-                }
-
-                result.then(({ path, edgesToHighlight, distance }) => {
-                    if (path.length > 0) {
-                        document.getElementById("locate").value = path.join(" -> ");
-                        document.getElementById("result").value = distance.toFixed(2);
-                    } else {
-                        alert(`Không có đường đi từ ${selectedStart} đến ${selectedEnd} bằng ${selectVehicle}`);
+                let isAlgorithmRunning = false
+                function FindPath() {
+                    if (isAlgorithmRunning) {
+                        alert("Thuật toán hiện tại vẫn đang chạy. Vui lòng đợi...");
+                        return; 
                     }
-                });
-            }
+
+                    isAlgorithmRunning = true;
+
+                    const selectedAlgorithm = document.getElementById("ShortAlgorithm").value;
+                    const selectVehicle = document.getElementById("vehicle").value;
+                    const selectedStart = vertexStart.value;
+                    const selectedEnd = vertexEnd.value;
+
+                    // Reset màu sắc trước khi chạy thuật toán
+                    svg.selectAll(".node").attr("fill", "#69b3a2");
+                    // Thêm dòng này để reset lại lần lặp kiếm đường ở đây này
+                    svg.selectAll(".link").attr("stroke", "black"); 
+                    // Chọn thuật toán
+                    let result;
+                    if (selectedAlgorithm === "Dijkstra") {
+                        result = Dijkstra(graph, selectedStart, selectedEnd, selectVehicle);
+                    } else if (selectedAlgorithm === "Ford Bell Man") {
+                        result = FordBellman(graph, selectedStart, selectedEnd, selectVehicle);
+                    } else if (selectedAlgorithm === "AStar") {
+                        result = AStar(graph, selectedStart, selectedEnd, selectVehicle);
+                    }
+
+                    result.then(({ path, edgesToHighlight, distance }) => {
+                        if (path.length > 0) {
+                            document.getElementById("locate").value = path.join(" -> ");
+                            document.getElementById("result").value = distance.toFixed(2);
+                        } else {
+                            alert(`Không có đường đi từ ${selectedStart} đến ${selectedEnd} bằng ${selectVehicle}`);
+                        }
+                    }).finally(() => {
+                        isAlgorithmRunning = false;  // Đánh dấu thuật toán đã hoàn thành
+                    });
+                }
 
 
         }).catch(error => {
