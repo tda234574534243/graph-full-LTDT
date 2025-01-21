@@ -34,7 +34,7 @@
 ### Thư viện được sử dụng
 - **D3.js** (v7) - Visualize đồ thị.
 - **Bootstrap** - Thiết kế giao diện.
-- **EmailJS** - Gửi phản hồi qua email.
+- **Formspree** - Gửi phản hồi qua email.
 
 ---
 
@@ -91,7 +91,7 @@
 #### b. **Phản hồi và góp ý**
 1. Nhấp vào nút "Góp ý & phản hồi" ở cuối giao diện.
 2. Điền thông tin vào form phản hồi.
-3. Nhấn "Gửi" để gửi ý kiến qua EmailJS.
+3. Nhấn "Gửi" để gửi ý kiến qua Formspree(có thể tạo tài khoản trên Formspree và lấy mã html từ trang).
 
 ---
 
@@ -118,7 +118,7 @@
 
 ## 7. Lưu Ý
 - Nếu không tải được dữ liệu từ `graph.json`, hãy kiểm tra lại tất cả các file cần thiết cho chương trình (không mở trực tiếp file `index.html`).
-- Cần cấu hình dịch vụ **EmailJS** với API key cá nhân nếu muốn sử dụng chức năng gửi phản hồi.
+- Cần cấu hình dịch vụ **Formspree** với API key cá nhân nếu muốn sử dụng chức năng gửi phản hồi.
 
 ---
 
