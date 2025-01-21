@@ -11,7 +11,11 @@
   </style>
 </head>
 <body>
-  <form id="feedbackForm" class="p-4 border rounded shadow-sm bg-white">
+  <form
+    action="https://formspree.io/f/xyzzrawq"
+    method="POST"
+    class="p-4 border rounded shadow-sm bg-white feedback-form"
+  >
     <div class="mb-3">
       <label for="name" class="form-label">Họ và Tên</label>
       <input type="text" class="form-control" id="name" name="name" placeholder="Nhập họ tên của bạn" required>
@@ -27,46 +31,14 @@
     </div>
     <div class="mb-3">
       <label for="comments" class="form-label">Ý kiến của bạn</label>
-      <textarea class="form-control" id="comments" name="comments" rows="4" placeholder="Nhập ý kiến của bạn" required></textarea>
+      <textarea class="form-control" id="comments" name="message" rows="4" placeholder="Nhập ý kiến của bạn" required></textarea>
     </div>
     <div class="text-center">
-      <button type="button" class="btn btn-primary" id="sendFeedback">Gửi</button>
+      <button type="submit" class="btn btn-primary">Gửi</button>
       <button type="reset" class="btn btn-secondary">Xóa</button>
     </div>
   </form>
   
-  <script>
-      document.getElementById("sendFeedback").addEventListener("click", function () {
-      const name = document.getElementById("name").value;
-      const feedbackType = document.getElementById("feedback_type").value;
-      const comments = document.getElementById("comments").value;
-
-      console.log("Gửi thông tin:", { name, feedbackType, comments }); // Kiểm tra dữ liệu gửi đi
-
-      emailjs.send("service_7lzzdqq", "template_e9hdyui", {
-        name: name,
-        feedback_type: feedbackType,
-        comments: comments,
-      })
-      .then(function (response) {
-        alert("Phản hồi của bạn đã được gửi thành công!");
-      })
-      .catch(function (error) {
-        alert("Có lỗi xảy ra: " + JSON.stringify(error));
-      });
-    });
-  </script>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-      <script type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
-    </script>
-    <script type="text/javascript">
-    (function(){
-    emailjs.init({
-      publicKey: "B_MVup5Xaf5KFzN7S",
-    });
-    })();
-    </script>
 </body>
 </html>
