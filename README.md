@@ -112,7 +112,7 @@
 ![Giao diện chính](./images/Mainmenu.JPG)
 ### Đường đi ngắn nhất 
 ![Đường đi ngắn nhất](./images/demo2.JPG)
-### web demo: https://tda234574534243.github.io/GraphFullLTDT/
+### web demo: https://tda234574534243.github.io/graph-full-LTDT/
 
 ---
 
